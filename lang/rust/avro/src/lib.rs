@@ -775,6 +775,7 @@ mod ser;
 mod util;
 mod writer;
 
+pub mod cursor_reader;
 pub mod rabin;
 pub mod schema;
 pub mod schema_compatibility;

@@ -236,7 +236,7 @@ impl<'r, R: Read> Block<'r, R> {
     }
 }
 
-fn read_codec(metadata: &HashMap<String, Value>) -> AvroResult<Codec> {
+pub fn read_codec(metadata: &HashMap<String, Value>) -> AvroResult<Codec> {
     let result = metadata
         .get("avro.codec")
         .map(|codec| {
