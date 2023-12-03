@@ -221,19 +221,21 @@ impl<'b> ser::Serializer for &'b mut Serializer {
         self,
         _: &'static str,
         index: u32,
-        variant: &'static str,
+        _variant: &'static str,
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
         T: Serialize,
     {
-        Ok(Value::Record(vec![
-            ("type".to_owned(), Value::Enum(index, variant.to_owned())),
-            (
-                "value".to_owned(),
-                Value::Union(index, Box::new(value.serialize(self)?)),
-            ),
-        ]))
+        Ok(Value::Union(index, Box::new(value.serialize(self)?)))
+        // Might break some stuff for real enums I guess...
+        // Ok(Value::Record(vec![
+        //     ("type".to_owned(), Value::Enum(index, variant.to_owned())),
+        //     (
+        //         "value".to_owned(),
+        //         Value::Union(index, Box::new(value.serialize(self)?)),
+        //     ),
+        // ]))
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
