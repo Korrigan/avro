@@ -27,9 +27,11 @@ use bzip2::{
     Compression,
 };
 #[cfg(feature = "snappy")]
-extern crate crc32fast;
+pub extern crate crc32fast;
 #[cfg(feature = "snappy")]
 use crc32fast::Hasher;
+#[cfg(feature = "snappy")]
+pub extern crate snap;
 #[cfg(feature = "xz")]
 use xz2::read::{XzDecoder, XzEncoder};
 
@@ -180,6 +182,63 @@ impl Codec {
             }
         };
         Ok(())
+    }
+
+    pub fn decompress_owned(self, stream: &[u8]) -> AvroResult<Vec<u8>> {
+        Ok(match self {
+            Codec::Null => Vec::from(stream),
+            Codec::Deflate => {
+                let mut decoded = Vec::new();
+                let mut decoder = Decoder::new(&stream[..]);
+                decoder
+                    .read_to_end(&mut decoded)
+                    .map_err(Error::DeflateDecompress)?;
+                decoded
+            }
+            #[cfg(feature = "snappy")]
+            Codec::Snappy => {
+                let decompressed_size = snap::raw::decompress_len(&stream[..stream.len() - 4])
+                    .map_err(Error::GetSnappyDecompressLen)?;
+                let mut decoded = vec![0; decompressed_size];
+                snap::raw::Decoder::new()
+                    .decompress(&stream[..stream.len() - 4], &mut decoded[..])
+                    .map_err(Error::SnappyDecompress)?;
+
+                let mut last_four: [u8; 4] = [0; 4];
+                last_four.copy_from_slice(&stream[(stream.len() - 4)..]);
+                let expected: u32 = u32::from_be_bytes(last_four);
+
+                let mut hasher = Hasher::new();
+                hasher.update(&decoded);
+                let actual = hasher.finalize();
+
+                if expected != actual {
+                    return Err(Error::SnappyCrc32 { expected, actual });
+                }
+                decoded
+            }
+            #[cfg(feature = "zstandard")]
+            Codec::Zstandard => {
+                let mut decoded = Vec::new();
+                let mut decoder = zstd::Decoder::new(&stream[..]).unwrap();
+                std::io::copy(&mut decoder, &mut decoded).map_err(Error::ZstdDecompress)?;
+                decoded
+            }
+            #[cfg(feature = "bzip")]
+            Codec::Bzip2 => {
+                let mut decoder = BzDecoder::new(&stream[..]);
+                let mut decoded = Vec::new();
+                decoder.read_to_end(&mut decoded).unwrap();
+                decoded
+            }
+            #[cfg(feature = "xz")]
+            Codec::Xz => {
+                let mut decoder = XzDecoder::new(&stream[..]);
+                let mut decoded: Vec<u8> = Vec::new();
+                decoder.read_to_end(&mut decoded).unwrap();
+                decoded
+            }
+        })
     }
 }
 
