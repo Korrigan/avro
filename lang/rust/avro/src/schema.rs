@@ -563,7 +563,7 @@ impl<'s> ResolvedSchema<'s> {
     }
 }
 
-pub(crate) struct ResolvedOwnedSchema {
+pub struct ResolvedOwnedSchema {
     names: Names,
     root_schema: Schema,
 }
@@ -583,10 +583,10 @@ impl TryFrom<Schema> for ResolvedOwnedSchema {
 }
 
 impl ResolvedOwnedSchema {
-    pub(crate) fn get_root_schema(&self) -> &Schema {
+    pub fn get_root_schema(&self) -> &Schema {
         &self.root_schema
     }
-    pub(crate) fn get_names(&self) -> &Names {
+    pub fn get_names(&self) -> &Names {
         &self.names
     }
 
@@ -4791,7 +4791,7 @@ mod tests {
                     "type": "Bar"
                 }
             ]
-        } 
+        }
         "#;
 
         #[derive(

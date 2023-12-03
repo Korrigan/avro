@@ -17,13 +17,18 @@
 
 //! Logic handling reading from Avro format at user level.
 use crate::{
-    decode::{decode, decode_internal},
+    decode::decode_internal,
     from_value,
     rabin::Rabin,
     schema::{AvroSchema, Names, ResolvedOwnedSchema, ResolvedSchema, Schema},
     types::Value,
     util, AvroResult, Codec, Error,
 };
+
+// Handy re-export :)
+pub use crate::decode::decode;
+pub use util::read_long;
+
 use serde::de::DeserializeOwned;
 use serde_json::from_slice;
 use std::{

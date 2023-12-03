@@ -17,13 +17,16 @@
 
 //! Logic handling writing in Avro format at user level.
 use crate::{
-    encode::{encode, encode_internal, encode_to_vec},
+    encode::{encode_internal, encode_to_vec},
     rabin::Rabin,
     schema::{AvroSchema, ResolvedOwnedSchema, ResolvedSchema, Schema},
     ser::Serializer,
     types::Value,
     AvroResult, Codec, Error,
 };
+
+// Handy re-export :)
+pub use crate::encode::encode;
 use serde::Serialize;
 use std::{collections::HashMap, convert::TryFrom, io::Write, marker::PhantomData};
 
@@ -557,7 +560,7 @@ fn write_value_ref_resolved(
     }
 }
 
-fn write_value_ref_owned_resolved(
+pub fn write_value_ref_owned_resolved(
     resolved_schema: &ResolvedOwnedSchema,
     value: &Value,
     buffer: &mut Vec<u8>,
@@ -607,7 +610,7 @@ pub fn to_avro_datum_schemata<T: Into<Value>>(
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn generate_sync_marker() -> [u8; 16] {
+pub fn generate_sync_marker() -> [u8; 16] {
     let mut marker = [0_u8; 16];
     std::iter::repeat_with(rand::random)
         .take(16)
@@ -617,7 +620,7 @@ fn generate_sync_marker() -> [u8; 16] {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn generate_sync_marker() -> [u8; 16] {
+pub fn generate_sync_marker() -> [u8; 16] {
     let mut marker = [0_u8; 16];
     std::iter::repeat_with(quad_rand::rand)
         .take(4)

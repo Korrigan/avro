@@ -763,17 +763,17 @@
 //! assert!(SchemaCompatibility::can_read(&writers_schema, &readers_schema).is_err());
 //! ```
 
-mod codec;
-mod de;
+pub mod codec;
+pub mod de;
 mod decimal;
 mod decode;
 mod duration;
 mod encode;
 mod error;
-mod reader;
-mod ser;
+pub mod reader;
+pub mod ser;
 mod util;
-mod writer;
+pub mod writer;
 
 pub mod rabin;
 pub mod schema;
@@ -786,8 +786,8 @@ pub use decimal::Decimal;
 pub use duration::{Days, Duration, Millis, Months};
 pub use error::Error;
 pub use reader::{
-    from_avro_datum, from_avro_datum_schemata, read_marker, GenericSingleObjectReader, Reader,
-    SpecificSingleObjectReader,
+    from_avro_datum, from_avro_datum_schemata, read_long, read_marker, GenericSingleObjectReader,
+    Reader, SpecificSingleObjectReader,
 };
 pub use schema::{AvroSchema, Schema};
 pub use ser::to_value;
