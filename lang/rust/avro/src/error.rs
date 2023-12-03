@@ -424,6 +424,12 @@ pub enum Error {
     #[error("unable to read block")]
     ReadBlock,
 
+    #[error("not enough data in buf to read block")]
+    ReadBlockNotEnoughData,
+
+    #[error("not enough data in buf to read block")]
+    ReadBlockEmptyBuffer,
+
     #[error("Failed to serialize value into Avro value: {0}")]
     SerializeValue(String),
 
@@ -478,6 +484,12 @@ pub enum Error {
 
     #[error("Invalid Avro data! Cannot read codec type from value that is not Value::Bytes.")]
     BadCodecMetadata,
+
+    #[error("Cannot seek cursor reader")]
+    SeekFailure(#[source] std::io::Error),
+
+    #[error("Cannot read messagesa")]
+    ReadMessagesFailure,
 }
 
 #[derive(thiserror::Error, Debug)]
